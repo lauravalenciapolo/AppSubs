@@ -1,44 +1,40 @@
-import { useState } from "react"
+import { useReducer, useState } from "react"
+import useNewSub from "../hooks/useNewSub"
 import { Sub } from "../types"
 
-interface FormState {
-    "input": Sub
-    // {
-    //     "nick": string, 
-    //     "months": number,
-    //     "avatar": string,
-    //     "description"?:string
-    // }
-// Esto ya lo tengo en una interface entonces lo importo y lo uso
-}
+
 interface FormProps {
     onNewSub: (newSub: Sub) => void
 }
 
-const initialState = {
-    "nick":"",
-    "months": 0,
-    "avatar": "",
-    "description":""
-}
 export default function Form ({onNewSub}:FormProps){
-    const [input, setInput] = useState<FormState["input"]>(initialState)
+
+    const [input, dispatch] = useNewSub()
+    //Así con el reducer sin custom hooks
+    //const [input, dispatch] = useReducer (reducer, initialState)
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         onNewSub (input)
         handleClear()
+        // o puedo utilizar dispatch ...
+
     }
-    // sino pongo el tipo del e entonces no reconoce que es porque no sabe donde se está utilizando. Una clave es pasar la funcion tal cual donde se va a utilizar y de ahí en el hover puedo mirar el tipo que es, en este caso React.ChangeEvent<HTMLInputElement>
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setInput({
-            ...input,
-            [e.target.name]: e.target.value
+        dispatch({
+            type: "CAMBIAR_ESTADO",
+            payload:{
+                inputName:e.target.name,
+                inputValue: e.target.value
+            }
         })
     }
 
     const handleClear = ()=>{
-        setInput(initialState)
+        dispatch({
+            type:"CLEAR"
+        })
     }
 
     return (
@@ -54,5 +50,3 @@ export default function Form ({onNewSub}:FormProps){
         </div>
     )
 }
-
-// En el componente Form copy encuentro como hacerlo pero utilizando reducer y custom hook
